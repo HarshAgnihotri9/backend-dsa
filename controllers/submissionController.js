@@ -1,5 +1,5 @@
 import Problem from "../models/problemSchema.js";
-
+import User from "../models/User.js";
 export const runCode = async (req, res) => {
   const { code, slug } = req.body;
 
@@ -12,6 +12,7 @@ export const runCode = async (req, res) => {
         message: "Problem not found",
       });
     }
+    
 
     // 🔥 EXTRACT FUNCTION NAME FROM USER CODE
     const functionMatch = code.match(/function\s+([a-zA-Z0-9_]+)/);
@@ -55,6 +56,17 @@ export const runCode = async (req, res) => {
           output,
           passed,
         });
+        if (allPassed) {
+          await User.findByIdAndUpdate(
+            req.user.id,
+            {
+              $addToSet: { // 🔥 prevents duplicates
+                solvedProblems: problem._id,
+              },
+            },
+            { new: true }
+          );
+        }
 
       } catch (err) {
         return res.status(400).json({

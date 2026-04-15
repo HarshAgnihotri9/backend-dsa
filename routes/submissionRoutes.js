@@ -1,8 +1,9 @@
 import express from "express";
 import { runCode } from "../controllers/submissionController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/run", runCode);
+router.post("/run",protect, runCode);
 
 export default router;

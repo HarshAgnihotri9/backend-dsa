@@ -3,17 +3,24 @@ import jwt from "jsonwebtoken";
 const JWT_SECRET = "your_secret_key";
 
 export const protect = (req, res, next) => {
-  const token = req.headers.authorization;
+  const authHeader = req.headers.authorization;
 
-  if (!token) {
-    return res.status(401).json({ message: "No token" });
+  // console.log("Auth Header:", authHeader);
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "No token or invalid format" });
   }
+
+  // 🔥 Extract token
+  const token = authHeader.split(" ")[1];
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
+    // console.log("Decoded:", decoded);
+
     req.user = decoded;
     next();
-  } catch {
+  } catch (err) {
     res.status(401).json({ message: "Invalid token" });
   }
 };
