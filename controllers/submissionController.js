@@ -12,9 +12,8 @@ export const runCode = async (req, res) => {
         message: "Problem not found",
       });
     }
-    
 
-    // 🔥 EXTRACT FUNCTION NAME FROM USER CODE
+    // 🔥 Extract function name
     const functionMatch = code.match(/function\s+([a-zA-Z0-9_]+)/);
 
     if (!functionMatch) {
@@ -33,6 +32,7 @@ export const runCode = async (req, res) => {
     for (let test of problem.testCases) {
       try {
         const input = JSON.parse(test.input);
+        const expected = JSON.parse(test.expectedOutput);
 
         const userFunction = new Function(
           "input",
@@ -43,7 +43,6 @@ export const runCode = async (req, res) => {
         );
 
         const output = userFunction(input);
-        const expected = JSON.parse(test.expectedOutput);
 
         const passed =
           JSON.stringify(output) === JSON.stringify(expected);
@@ -56,17 +55,6 @@ export const runCode = async (req, res) => {
           output,
           passed,
         });
-        if (allPassed) {
-          await User.findByIdAndUpdate(
-            req.user.id,
-            {
-              $addToSet: { // 🔥 prevents duplicates
-                solvedProblems: problem._id,
-              },
-            },
-            { new: true }
-          );
-        }
 
       } catch (err) {
         return res.status(400).json({
@@ -80,6 +68,7 @@ export const runCode = async (req, res) => {
       }
     }
 
+    // ✅ ONLY RETURN RESULT (NO DB UPDATE)
     return res.json({
       success: allPassed,
       results,
@@ -93,7 +82,6 @@ export const runCode = async (req, res) => {
     });
   }
 };
-
 
 
 
