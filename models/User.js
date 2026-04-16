@@ -15,13 +15,22 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
 
-    solvedProblems: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Problem",
-      },
-    ],
+  points: { type: Number, default: 0 },
+  streak: { type: Number, default: 0 },
+  lastSolvedDate: { type: Date, default: null },
+
+  solvedProblems: [
+  {
+    problemId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Problem",
+    },
+    difficulty: String,
+    solvedAt: Date,
   },
+]
+  },
+  
   { timestamps: true }
 );
 
